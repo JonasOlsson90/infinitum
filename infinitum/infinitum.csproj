@@ -6,4 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Reference Include="infinitum.core">
+      <HintPath>..\..\infinitumcore\infinitum.core\infinitum.core\bin\Debug\net7.0\infinitum.core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
