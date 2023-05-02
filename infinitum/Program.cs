@@ -17,10 +17,11 @@ app.MapGet("/ping", () => "I has been pinged");
 var client = new HttpClient();
 var io = new IO();
 
-// Check if local blockchain exists
-
 var privateKey = io.GetPrivateKey();
 var publicKey = io.GetPublicKey(privateKey);
 var blockchain = io.GetLocalBlockchain(publicKey);
+
+app.MapGet("/testPK", () => privateKey);
+app.MapGet("/testBC", () => blockchain);
 
 app.Run();
