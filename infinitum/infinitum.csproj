@@ -7,9 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="infinitum.core">
-      <HintPath>..\..\infinitumcore\infinitum.core\infinitum.core\bin\Debug\net7.0\infinitum.core.dll</HintPath>
-    </Reference>
+    <PackageReference Include="infinitum.core" Version="0.0.1" />
   </ItemGroup>
 
 </Project>
