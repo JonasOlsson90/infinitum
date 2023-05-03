@@ -22,5 +22,7 @@ var wallet = new Wallet(io);
 app.MapGet("/testPK", () => wallet.PrivateKey());
 app.MapGet("/testBC", () => wallet.Blockchain());
 app.MapGet("/check_balance", () => wallet.Balance());
+app.MapGet("/public_key", () => wallet.PublicKey());
+app.MapGet($"/{wallet.PublicKey()}/", (string sender, decimal amount) => wallet.ReceivePayment(sender, amount));
 
 app.Run();
