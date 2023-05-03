@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using infinitum.core;
+using infinitum.core.Utils;
 
 namespace infinitum.IO;
 
@@ -70,6 +71,11 @@ public class FileIOHandler
 
     public void SaveBlockchain(List<Block> blockchain)
     {
+        if (!Validator.ValidateBlockchain(blockchain))
+        {
+            throw new Exception("You have manually fiddled with the blockchain!");
+        }
+
         var serializedBlockchain = JsonSerializer.Serialize(blockchain);
         File.WriteAllText(_filePathBlockchain, serializedBlockchain);
     }
