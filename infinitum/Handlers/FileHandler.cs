@@ -4,15 +4,15 @@ using System.Text.Json;
 using infinitum.core;
 using infinitum.core.Utils;
 
-namespace infinitum.IO;
+namespace infinitum.Handlers;
 
-public class FileIOHandler
+public class FileHandler
 {
     private readonly SHA256 _sha256;
     private readonly string _filePathPrivateKey;
     private readonly string _filePathBlockchain;
 
-    public FileIOHandler()
+    public FileHandler()
     {
         _sha256 = SHA256.Create();
         _filePathPrivateKey = "./privatekey.txt";

@@ -1,4 +1,5 @@
-using infinitum.IO;
+using infinitum.core;
+using infinitum.Handlers;
 using infinitum.Wallet;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,18 +12,21 @@ var app = builder.Build();
 
 //app.UseHttpsRedirection();
 
-// ToDo: Remove this and add real endpoints
+
+var io = new FileHandler();
+var httpHandler = new HttpHandler();
+var wallet = new Wallet(io, httpHandler);
+
+// ToDo: Remove these and add real endpoints
 app.MapGet("/ping", () => "I has been pinged");
-
-
-var client = new HttpClient();
-var io = new FileIOHandler();
-var wallet = new Wallet(io);
-
 app.MapGet("/testPK", () => wallet.PrivateKey());
 app.MapGet("/testBC", () => wallet.Blockchain());
 app.MapGet("/check_balance", () => wallet.Balance());
 app.MapGet("/public_key", () => wallet.PublicKey());
-app.MapGet($"/{wallet.PublicKey()}/", (string sender, decimal amount) => wallet.ReceivePayment(sender, amount));
+
+
+app.MapGet($"/{wallet.PublicKey()}/", (string sender, decimal amount) => wallet.ReceiveTransaction(sender, amount));
+
+app.MapPost("/send_transaction", (Transaction transaction, string address ) => wallet.SendTransaction(transaction, address));
 
 app.Run();

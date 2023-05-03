@@ -1,19 +1,21 @@
 ﻿using infinitum.core;
-using infinitum.IO;
+using infinitum.Handlers;
 
 namespace infinitum.Wallet;
 
 public class Wallet
 {
-    private readonly FileIOHandler _io;
+    private readonly FileHandler _io;
+    private readonly HttpHandler _httpHandler;
     private string _privateKey;
     private string _publicKey;
     private List<Block> _blockchain;
     private decimal _balance;
 
-    public Wallet(FileIOHandler io)
+    public Wallet(FileHandler io, HttpHandler httpHandler)
     {
         _io = io;
+        _httpHandler = httpHandler;
         _privateKey = _io.GetPrivateKey();
         _publicKey = _io.GetPublicKey(_privateKey);
         _blockchain = _io.GetLocalBlockchain(_publicKey);
@@ -36,7 +38,21 @@ public class Wallet
         }
     }
 
-    public void ReceivePayment(string sender, decimal amount)
+    public void ReceiveTransaction(string sender, decimal amount)
+    {
+        HandleTransaction(sender, _publicKey, amount);
+    }
+
+    public async Task SendTransaction(Transaction transaction, string address)
+    {
+        //Todo: Display that something went wrong
+        if (!await _httpHandler.PostTransaction(transaction, address))
+            return;
+
+        HandleTransaction(_publicKey, transaction.Recipient, transaction.Amount);
+    }
+
+    private void HandleTransaction(string sender, string recipient, decimal amount)
     {
         // Create transaction
         var transactions = new List<Transaction>();
@@ -45,7 +61,7 @@ public class Wallet
         {
             Amount = amount,
             Sender = sender,
-            Recipient = _publicKey,
+            Recipient = recipient,
             TimeStamp = DateTime.Now.Ticks
         };
 
