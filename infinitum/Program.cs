@@ -1,4 +1,5 @@
 using infinitum.IO;
+using infinitum.Wallet;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,13 +16,11 @@ app.MapGet("/ping", () => "I has been pinged");
 
 
 var client = new HttpClient();
-var io = new IO();
+var io = new FileIOHandler();
+var wallet = new Wallet(io);
 
-var privateKey = io.GetPrivateKey();
-var publicKey = io.GetPublicKey(privateKey);
-var blockchain = io.GetLocalBlockchain(publicKey);
-
-app.MapGet("/testPK", () => privateKey);
-app.MapGet("/testBC", () => blockchain);
+app.MapGet("/testPK", () => wallet.PrivateKey());
+app.MapGet("/testBC", () => wallet.Blockchain());
+app.MapGet("/check_balance", () => wallet.Balance());
 
 app.Run();

@@ -5,13 +5,13 @@ using infinitum.core;
 
 namespace infinitum.IO;
 
-public class IO
+public class FileIOHandler
 {
     private readonly SHA256 _sha256;
     private readonly string _filePathPrivateKey;
     private readonly string _filePathBlockchain;
 
-    public IO()
+    public FileIOHandler()
     {
         _sha256 = SHA256.Create();
         _filePathPrivateKey = "./privatekey.txt";
@@ -47,14 +47,10 @@ public class IO
     public List<Block> GetLocalBlockchain(string publicKey)
     {
         List<Block> blockchain;
-
-        // Check if local blockchain exists
+        
         if (!File.Exists(_filePathBlockchain))
         {
-            // If not create blockchain with genisis block
-
-            // Create genesis block
-
+            // Create genesis block if no blockchain was found
             var genesisBlock = GenerateGenesisBlock(publicKey);
 
             blockchain = new List<Block>
@@ -91,6 +87,6 @@ public class IO
         };
         transactions.Add(transaction);
 
-        return new Block(0, _sha256.ComputeHash(System.Text.Encoding.ASCII.GetBytes(string.Empty)), transactions);
+        return new Block(0, _sha256.ComputeHash(new byte[]{0}), transactions);
     }
 }
