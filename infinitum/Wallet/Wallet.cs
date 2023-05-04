@@ -1,5 +1,7 @@
 ﻿using infinitum.core;
+using infinitum.DTOs;
 using infinitum.Handlers;
+using System.Reflection;
 
 namespace infinitum.Wallet;
 
@@ -7,76 +9,69 @@ public class Wallet
 {
     private readonly FileHandler _io;
     private readonly HttpHandler _httpHandler;
-    private string _privateKey;
-    private string _publicKey;
-    private List<Block> _blockchain;
-    private decimal _balance;
+
+    public string PrivateKey { get; private set; }
+    public string PublicKey { get; private set; }
+    public List<Block> Blockchain { get; private set; }
+    public decimal Balance { get; private set; }
 
     public Wallet(FileHandler io, HttpHandler httpHandler)
     {
         _io = io;
         _httpHandler = httpHandler;
-        _privateKey = _io.GetPrivateKey();
-        _publicKey = _io.GetPublicKey(_privateKey);
-        _blockchain = _io.GetLocalBlockchain(_publicKey);
+        PrivateKey = _io.GetPrivateKey();
+        PublicKey = _io.GetPublicKey(PrivateKey);
+        Blockchain = _io.GetLocalBlockchain(PublicKey);
         SetBalance();
     }
-
-    public string PrivateKey () => _privateKey;
-    public string PublicKey () => _publicKey;
-    public List<Block> Blockchain () => _blockchain;
-    public decimal Balance () => _balance;
 
     private void SetBalance()
     {
         // We need to assure that sending infinitum to your own wallet will not affect the balance
-        _balance = 0;
-        foreach (var transaction in _blockchain.SelectMany(block => block.Transactions))
+        Balance = 0;
+        foreach (var transaction in Blockchain.SelectMany(block => block.Transactions))
         {
-            _balance += transaction.Recipient == _publicKey ? transaction.Amount : 0;
-            _balance -= transaction.Sender == _publicKey ? transaction.Amount : 0;
+            Balance += transaction.Recipient == PublicKey ? transaction.Amount : 0;
+            Balance -= transaction.Sender == PublicKey ? transaction.Amount : 0;
         }
     }
 
     public void ReceiveTransaction(string sender, decimal amount)
     {
-        HandleTransaction(sender, _publicKey, amount);
-    }
-
-    public async Task SendTransaction(Transaction transaction, string address)
-    {
-        //Todo: Display that something went wrong
-        if (!await _httpHandler.PostTransaction(transaction, address))
-            return;
-
-        HandleTransaction(_publicKey, transaction.Recipient, transaction.Amount);
-    }
-
-    private void HandleTransaction(string sender, string recipient, decimal amount)
-    {
-        // Create transaction
-        var transactions = new List<Transaction>();
-
         var transaction = new Transaction()
         {
             Amount = amount,
             Sender = sender,
-            Recipient = recipient,
+            Recipient = PublicKey,
+            TimeStamp = DateTime.Now.Ticks
+        };;
+
+        HandleTransaction(transaction);
+    }
+
+    public async Task SendTransaction(OutgoingTransactionDto outgoingTransactionDto)
+    {
+        var transaction = new Transaction()
+        {
+            Amount = outgoingTransactionDto.Amount,
+            Sender = PublicKey,
+            Recipient = outgoingTransactionDto.Recipient,
             TimeStamp = DateTime.Now.Ticks
         };
 
-        transactions.Add(transaction);
+        //ToDo: Display that something went wrong
+        if (!await _httpHandler.PostTransaction(transaction, outgoingTransactionDto.Address))
+            return;
 
-        // Create block
-        var newBlock = new Block(_blockchain.Last().Height + 1, _blockchain.Last().Hash, transactions);
+        HandleTransaction(transaction);
+    }
 
-        // Add block to the blockchain
-        _blockchain.Add(newBlock);
-
-        // Save the updated blockchain to file
-        _io.SaveBlockchain(_blockchain);
-
-        // Calculate new balance
+    private void HandleTransaction(Transaction transaction)
+    {
+        var transactions = new List<Transaction>() {transaction};
+        var newBlock = new Block(Blockchain.Last().Height + 1, Blockchain.Last().Hash, transactions);
+        Blockchain.Add(newBlock);
+        _io.SaveBlockchain(Blockchain);
         SetBalance();
     }
 }
