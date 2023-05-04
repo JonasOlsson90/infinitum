@@ -1,7 +1,7 @@
-﻿using infinitum.core;
+﻿using System.Globalization;
+using infinitum.core;
 using infinitum.DTOs;
 using infinitum.Handlers;
-using System.Reflection;
 
 namespace infinitum.Wallet;
 
@@ -36,24 +36,30 @@ public class Wallet
         }
     }
 
-    public void ReceiveTransaction(string sender, decimal amount)
+    public void ReceiveTransaction(IncomingTransactionDto incomingTransactionDto)
     {
+        if (!decimal.TryParse(incomingTransactionDto.Amount, CultureInfo.InvariantCulture, out var amount))
+            return;
+
         var transaction = new Transaction()
         {
             Amount = amount,
-            Sender = sender,
+            Sender = incomingTransactionDto.Sender,
             Recipient = PublicKey,
             TimeStamp = DateTime.Now.Ticks
-        };;
+        };
 
         HandleTransaction(transaction);
     }
 
     public async Task SendTransaction(OutgoingTransactionDto outgoingTransactionDto)
     {
+        if (!decimal.TryParse(outgoingTransactionDto.Amount, CultureInfo.InvariantCulture, out var amount))
+            return;
+
         var transaction = new Transaction()
         {
-            Amount = outgoingTransactionDto.Amount,
+            Amount = amount,
             Sender = PublicKey,
             Recipient = outgoingTransactionDto.Recipient,
             TimeStamp = DateTime.Now.Ticks

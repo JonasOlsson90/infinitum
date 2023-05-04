@@ -1,4 +1,6 @@
 ﻿using infinitum.core;
+using System.Globalization;
+using infinitum.DTOs;
 
 namespace infinitum.Handlers;
 
@@ -13,9 +15,19 @@ public class HttpHandler
 
     public async Task<bool> PostTransaction(Transaction transaction, string address)
     {
-        var request = $"{address}/{transaction.Recipient}?sender={transaction.Sender}&amount={transaction.Amount}";
+        if (string.IsNullOrEmpty(transaction.Sender))
+            return false;
 
-        var response = await _httpClient.GetAsync(request);
+        var values = new IncomingTransactionDto()
+        {
+            Sender = transaction.Sender,
+            Amount = transaction.Amount.ToString(CultureInfo.InvariantCulture),
+        };
+
+
+        var requestUri = $"{address}/{transaction.Recipient}";
+
+        var response = await _httpClient.PostAsJsonAsync(requestUri, values);
         
         return response.IsSuccessStatusCode;
     }

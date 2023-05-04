@@ -25,7 +25,7 @@ app.MapGet("/check_balance", () => wallet.Balance);
 app.MapGet("/public_key", () => wallet.PublicKey);
 
 
-app.MapGet($"/{wallet.PublicKey}", (string sender, decimal amount) => wallet.ReceiveTransaction(sender, amount));
+app.MapPost($"/{wallet.PublicKey}", (IncomingTransactionDto incomingTransactionDto) => wallet.ReceiveTransaction(incomingTransactionDto));
 
 app.MapPost("/send_transaction", (OutgoingTransactionDto outgoingTransactionDto ) => wallet.SendTransaction(outgoingTransactionDto));
 
