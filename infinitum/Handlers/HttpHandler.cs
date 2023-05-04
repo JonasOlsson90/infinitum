@@ -13,7 +13,7 @@ public class HttpHandler
         _httpClient = new();
     }
 
-    public async Task<bool> PostTransaction(Transaction transaction, string address)
+    public async Task<bool> PostTransactionAsync(Transaction transaction, string address)
     {
         if (string.IsNullOrEmpty(transaction.Sender))
             return false;
@@ -24,11 +24,15 @@ public class HttpHandler
             Amount = transaction.Amount.ToString(CultureInfo.InvariantCulture),
         };
 
-
         var requestUri = $"{address}/{transaction.Recipient}";
 
         var response = await _httpClient.PostAsJsonAsync(requestUri, values);
         
         return response.IsSuccessStatusCode;
+    }
+
+    public async Task<string?> GetPublicKeyAsync(string address)
+    {
+        return await _httpClient.GetStringAsync($"{address}/public_key");
     }
 }

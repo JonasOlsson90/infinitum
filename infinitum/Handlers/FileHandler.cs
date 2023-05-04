@@ -76,7 +76,12 @@ public class FileHandler
             throw new Exception("You have manually fiddled with the blockchain!");
         }
 
-        var serializedBlockchain = JsonSerializer.Serialize(blockchain);
+        var options = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+
+        var serializedBlockchain = JsonSerializer.Serialize(blockchain, options);
         File.WriteAllText(_filePathBlockchain, serializedBlockchain);
     }
 

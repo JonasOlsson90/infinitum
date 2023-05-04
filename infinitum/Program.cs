@@ -27,6 +27,6 @@ app.MapGet("/public_key", () => wallet.PublicKey);
 
 app.MapPost($"/{wallet.PublicKey}", (IncomingTransactionDto incomingTransactionDto) => wallet.ReceiveTransaction(incomingTransactionDto));
 
-app.MapPost("/send_transaction", (OutgoingTransactionDto outgoingTransactionDto ) => wallet.SendTransaction(outgoingTransactionDto));
+app.MapPost("/send_transaction", (OutgoingTransactionDto outgoingTransactionDto ) => wallet.SendTransactionAsync(outgoingTransactionDto));
 
 app.Run();

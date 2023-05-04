@@ -52,21 +52,28 @@ public class Wallet
         HandleTransaction(transaction);
     }
 
-    public async Task SendTransaction(OutgoingTransactionDto outgoingTransactionDto)
+    public async Task SendTransactionAsync(OutgoingTransactionDto outgoingTransactionDto)
     {
+        const int lengthOfSha256 = 64;
+
         if (!decimal.TryParse(outgoingTransactionDto.Amount, CultureInfo.InvariantCulture, out var amount))
+            return;
+
+        var recipientPublicKey = await _httpHandler.GetPublicKeyAsync(outgoingTransactionDto.Address);
+
+        if (string.IsNullOrEmpty(recipientPublicKey) || recipientPublicKey.Length != lengthOfSha256)
             return;
 
         var transaction = new Transaction()
         {
             Amount = amount,
             Sender = PublicKey,
-            Recipient = outgoingTransactionDto.Recipient,
+            Recipient = recipientPublicKey,
             TimeStamp = DateTime.Now.Ticks
         };
 
         //ToDo: Display that something went wrong
-        if (!await _httpHandler.PostTransaction(transaction, outgoingTransactionDto.Address))
+        if (!await _httpHandler.PostTransactionAsync(transaction, outgoingTransactionDto.Address))
             return;
 
         HandleTransaction(transaction);
