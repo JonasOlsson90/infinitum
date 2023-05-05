@@ -7,12 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="infinitum.core" Version="0.0.2" />
+    <Folder Include="DTOs\" />
+    <Folder Include="Wallet\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\" />
-    <Folder Include="Wallet\" />
+    <PackageReference Include="infinitum.core" Version="0.0.3" />
   </ItemGroup>
 
 </Project>
