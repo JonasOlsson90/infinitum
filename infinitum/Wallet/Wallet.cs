@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using infinitum.core;
+using infinitum.core.Utils;
 using infinitum.DTOs;
 using infinitum.Handlers;
 
@@ -38,6 +39,9 @@ public class Wallet
 
     public IResult ReceiveTransaction(IncomingTransactionDto incomingTransactionDto)
     {
+        if (!Validator.ValidateBlockchain(Blockchain))
+            return TypedResults.BadRequest("Invalid local blockchain");
+
         if (!decimal.TryParse(incomingTransactionDto.Amount.Replace(",", "."), CultureInfo.InvariantCulture, out var amount))
             return TypedResults.BadRequest("Amount is in incorrect format");
 
@@ -57,6 +61,9 @@ public class Wallet
     {
         const int lengthOfSha256 = 64;
 
+        if (!Validator.ValidateBlockchain(Blockchain))
+            return TypedResults.BadRequest("Invalid local blockchain");
+
         if (!decimal.TryParse(outgoingTransactionDto.Amount.Replace(",", "."), CultureInfo.InvariantCulture, out var amount))
             return TypedResults.BadRequest("Amount is in incorrect format");
 
@@ -73,7 +80,6 @@ public class Wallet
             TimeStamp = DateTime.Now.Ticks
         };
 
-        //ToDo: Display that something went wrong
         if (!await _httpHandler.PostTransactionAsync(transaction, outgoingTransactionDto.Address))
             return TypedResults.BadRequest("Transaction failed");
 
