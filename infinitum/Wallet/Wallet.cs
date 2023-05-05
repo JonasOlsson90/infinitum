@@ -36,10 +36,10 @@ public class Wallet
         }
     }
 
-    public void ReceiveTransaction(IncomingTransactionDto incomingTransactionDto)
+    public IResult ReceiveTransaction(IncomingTransactionDto incomingTransactionDto)
     {
-        if (!decimal.TryParse(incomingTransactionDto.Amount, CultureInfo.InvariantCulture, out var amount))
-            return;
+        if (!decimal.TryParse(incomingTransactionDto.Amount.Replace(",", "."), CultureInfo.InvariantCulture, out var amount))
+            return TypedResults.BadRequest("Amount is in incorrect format");
 
         var transaction = new Transaction()
         {
@@ -50,19 +50,20 @@ public class Wallet
         };
 
         HandleTransaction(transaction);
+        return TypedResults.Ok("Successfully received transaction");
     }
 
-    public async Task SendTransactionAsync(OutgoingTransactionDto outgoingTransactionDto)
+    public async Task<IResult> SendTransactionAsync(OutgoingTransactionDto outgoingTransactionDto)
     {
         const int lengthOfSha256 = 64;
 
-        if (!decimal.TryParse(outgoingTransactionDto.Amount, CultureInfo.InvariantCulture, out var amount))
-            return;
+        if (!decimal.TryParse(outgoingTransactionDto.Amount.Replace(",", "."), CultureInfo.InvariantCulture, out var amount))
+            return TypedResults.BadRequest("Amount is in incorrect format");
 
         var recipientPublicKey = await _httpHandler.GetPublicKeyAsync(outgoingTransactionDto.Address);
 
         if (string.IsNullOrEmpty(recipientPublicKey) || recipientPublicKey.Length != lengthOfSha256)
-            return;
+            return TypedResults.BadRequest("Peer not online");
 
         var transaction = new Transaction()
         {
@@ -74,9 +75,11 @@ public class Wallet
 
         //ToDo: Display that something went wrong
         if (!await _httpHandler.PostTransactionAsync(transaction, outgoingTransactionDto.Address))
-            return;
+            return TypedResults.BadRequest("Transaction failed");
 
         HandleTransaction(transaction);
+
+        return TypedResults.Ok("Transaction successful");
     }
 
     private void HandleTransaction(Transaction transaction)
