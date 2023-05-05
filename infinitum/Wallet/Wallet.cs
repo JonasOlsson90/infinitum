@@ -67,6 +67,9 @@ public class Wallet
         if (!decimal.TryParse(outgoingTransactionDto.Amount.Replace(",", "."), CultureInfo.InvariantCulture, out var amount))
             return TypedResults.BadRequest("Amount is in incorrect format");
 
+        if (amount <= 0)
+            return TypedResults.BadRequest("Sneaky! No negative transactions.");
+
         var recipientPublicKey = await _httpHandler.GetPublicKeyAsync(outgoingTransactionDto.Address);
 
         if (string.IsNullOrEmpty(recipientPublicKey) || recipientPublicKey.Length != lengthOfSha256)
