@@ -67,6 +67,9 @@ public class Wallet
         if (!decimal.TryParse(outgoingTransactionDto.Amount.Replace(",", "."), CultureInfo.InvariantCulture, out var amount))
             return TypedResults.BadRequest("Amount is in incorrect format");
 
+        if (Balance - amount < 0)
+            return TypedResults.BadRequest("Insufficient funds");
+
         if (amount <= 0)
             return TypedResults.BadRequest("Sneaky! No negative transactions.");
 
