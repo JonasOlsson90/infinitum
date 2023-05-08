@@ -16,7 +16,6 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-// ToDo: Remove these and add real endpoints
 app.MapGet("/get_blockchain", (IWallet wallet) => wallet.Blockchain);
 app.MapGet("/check_balance", (IWallet wallet) => wallet.Balance);
 app.MapGet("/public_key", (IWallet wallet) => wallet.PublicKey);
@@ -26,7 +25,8 @@ app.MapPost("/{publicKey}", (IWallet wallet, string publicKey, IncomingTransacti
     ? wallet.ReceiveTransaction(incomingTransactionDto) 
     : TypedResults.NotFound());
 
-app.MapPost("/send_transaction", (IWallet wallet, OutgoingTransactionDto outgoingTransactionDto ) => wallet.SendTransactionAsync(outgoingTransactionDto));
+app.MapPost("/send_transaction", (IWallet wallet, OutgoingTransactionDto outgoingTransactionDto ) 
+    => wallet.SendTransactionAsync(outgoingTransactionDto));
 
 //app.UseHttpsRedirection();
 
