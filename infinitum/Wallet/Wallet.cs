@@ -8,6 +8,8 @@ namespace infinitum.Wallet;
 
 public class Wallet
 {
+    private const decimal BlockRewardMultiplier = 0.1M;
+
     private readonly FileHandler _io;
     private readonly HttpHandler _httpHandler;
 
@@ -28,7 +30,6 @@ public class Wallet
 
     private void SetBalance()
     {
-        // We need to assure that sending infinitum to your own wallet will not affect the balance
         Balance = 0;
         foreach (var transaction in Blockchain.SelectMany(block => block.Transactions))
         {
@@ -97,9 +98,23 @@ public class Wallet
     private void HandleTransaction(Transaction transaction)
     {
         var transactions = new List<Transaction>() {transaction};
+        transactions.Add(GenerateBlockRewardTransaction(transactions));
         var newBlock = new Block(Blockchain.Last().Height + 1, Blockchain.Last().Hash, transactions);
         Blockchain.Add(newBlock);
         _io.SaveBlockchain(Blockchain);
         SetBalance();
+    }
+
+    private Transaction GenerateBlockRewardTransaction(IEnumerable<Transaction> transactions)
+    {
+        var totalSum = transactions.Sum(t => t.Amount);
+
+        return new Transaction()
+        {
+            Amount = totalSum * BlockRewardMultiplier,
+            Sender = "**BLOCK REWARD**",
+            Recipient = PublicKey,
+            TimeStamp = DateTime.Now.Ticks
+        };
     }
 }
