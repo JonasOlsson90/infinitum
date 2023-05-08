@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using infinitum.core;
+using infinitum.core.Utils;
 
 namespace infinitum.Handlers;
 
@@ -34,14 +35,7 @@ public class FileHandler
         // Generate public key by hashing private key
         var publicKey = _sha256.ComputeHash(Encoding.ASCII.GetBytes(privateKey));
 
-        var sb = new StringBuilder();
-
-        foreach (var b in publicKey)
-            sb.Append(b.ToString("x2"));
-
-        var str = sb.ToString();
-
-        return str;
+        return ParsingTools.ConvertByteArrayToHexString(publicKey);
     }
 
     public List<Block> GetLocalBlockchain(string publicKey)
