@@ -4,7 +4,7 @@ using infinitum.DTOs;
 
 namespace infinitum.Handlers;
 
-public class HttpHandler
+public class HttpHandler : IHttpHandler
 {
     private readonly HttpClient _httpClient;
     

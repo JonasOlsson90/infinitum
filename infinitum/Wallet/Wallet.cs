@@ -6,19 +6,19 @@ using infinitum.Handlers;
 
 namespace infinitum.Wallet;
 
-public class Wallet
+public class Wallet : IWallet
 {
     private const decimal BlockRewardMultiplier = 0.1M;
 
-    private readonly FileHandler _io;
-    private readonly HttpHandler _httpHandler;
+    private readonly IFileHandler _io;
+    private readonly IHttpHandler _httpHandler;
 
-    public string PrivateKey { get; private set; }
-    public string PublicKey { get; private set; }
-    public List<Block> Blockchain { get; private set; }
+    public string PrivateKey { get; }
+    public string PublicKey { get; }
+    public List<Block> Blockchain { get; }
     public decimal Balance { get; private set; }
 
-    public Wallet(FileHandler io, HttpHandler httpHandler)
+    public Wallet(IFileHandler io, IHttpHandler httpHandler)
     {
         _io = io;
         _httpHandler = httpHandler;

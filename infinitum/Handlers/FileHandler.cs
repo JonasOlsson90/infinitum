@@ -6,7 +6,7 @@ using infinitum.core.Utils;
 
 namespace infinitum.Handlers;
 
-public class FileHandler
+public class FileHandler : IFileHandler
 {
     private readonly SHA256 _sha256;
     private readonly string _filePathPrivateKey;
