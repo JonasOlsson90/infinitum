@@ -10,8 +10,6 @@ builder.Services.AddScoped<IFileHandler, FileHandler>();
 builder.Services.AddScoped<IHttpHandler, HttpHandler>();
 builder.Services.AddScoped<IWallet, Wallet>();
 
-//var wallet = new Wallet();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
