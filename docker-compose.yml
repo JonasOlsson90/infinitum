@@ -1,0 +1,25 @@
+version: '3.4'
+
+networks:
+  InfinitumNet:
+  
+services:
+  infinitum:
+    container_name: infinitum
+    build:
+      context: .
+      dockerfile: infinitum/Dockerfile
+    image: infinitum:latest
+    networks:
+      - InfinitumNet
+    ports:
+      - 8006:80   
+  infinitum2:    
+    build:
+      context: .
+      dockerfile: infinitum/Dockerfile
+    image: infinitum:latest
+    networks:
+      - InfinitumNet
+    ports:
+      - 8007:80
